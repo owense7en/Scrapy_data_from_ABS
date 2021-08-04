@@ -1,0 +1,52 @@
+from bs4 import BeautifulSoup
+import requests
+from selenium import webdriver
+import pandas as pd
+
+#Get the number of region
+regionNumber = pd.read_csv("SA2_2016_AUST.csv",header = 0,sep=',')
+
+#Get all of url in the victorial
+def getFullURL(front_url):
+
+    number = []
+    string = []
+    full_url = []
+
+    for i in regionNumber["SA2_MAINCODE_2016"][578:1041]:
+        number.append(i)
+
+    for j in number:
+        fullstring = str(j) + ".csv"
+        string.append(fullstring)
+
+    for l in string:
+        url = front_url + l
+        full_url.append(url)
+
+    return full_url
+
+
+#Get all of data and save to csv
+def getData(full_url):
+
+    dfs = []
+
+    for i in full_url:
+        r = requests.get(i, stream=True)
+        with open("test.csv", "wb") as pdf:
+            for chunk in r.iter_content(chunk_size=1024):
+                # writing one chunk at a time to pdf file
+                if chunk:
+                    pdf.write(chunk)
+        data = pd.read_csv('test.csv', error_bad_lines=False)
+        dfs.append(data)
+
+    form = pd.concat(dfs,ignore_index=True)
+    form.to_csv('regionInfo.csv')
+
+
+front_url = "https://dbr.abs.gov.au/json/csv/SA2_"
+full_url = getFullURL(front_url)
+
+getData(full_url)

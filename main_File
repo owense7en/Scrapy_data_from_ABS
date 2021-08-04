@@ -34,11 +34,10 @@ def getData(full_url):
 
     for i in full_url:
         r = requests.get(i, stream=True)
-        with open("test.csv", "wb") as pdf:
+        with open("test.csv", "wb") as csv:
             for chunk in r.iter_content(chunk_size=1024):
-                # writing one chunk at a time to pdf file
                 if chunk:
-                    pdf.write(chunk)
+                    csv.write(chunk)
         data = pd.read_csv('test.csv', error_bad_lines=False)
         dfs.append(data)
 
